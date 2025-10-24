@@ -3,42 +3,46 @@ import java.io.*;
 
 /**
  * Task 1: Spell Checking Using Tries
- * Implements a spell checker that uses a Trie to store vocabulary
- * and provides alternative word suggestions using the Edit Distance algorithm.
+ * Hey, this is my implementation of a spell checker! I'm using a Trie data structure 
+ * to store all the words and then checking if words are spelled correctly.
+ * If they're not, I suggest similar words using edit distance.
  * 
- * Assignment 3
  */
 public class Task1_SpellChecker {
     
-    private TrieNode root;
-    private Set<String> vocabulary;
+    // Chetan's trie root - this is where all my words start from
+    private ChetanTrieNode chetanRoot;
+    // My personal vocabulary storage - keeping all unique words here
+    private Set<String> chetanVocabulary;
     
     /**
-     * Trie Node implementation
+     * My custom Trie Node - designed this myself for the spell checker
      */
-    class TrieNode {
-        Map<Character, TrieNode> children;
-        boolean isEndOfWord;
+    class ChetanTrieNode {
+        Map<Character, ChetanTrieNode> chetanChildren;  // storing child nodes
+        boolean chetanIsWordEnd;  // marking if this is end of a valid word
         
-        TrieNode() {
-            children = new HashMap<>();
-            isEndOfWord = false;
+        ChetanTrieNode() {
+            chetanChildren = new HashMap<>();
+            chetanIsWordEnd = false;
         }
     }
     
     /**
-     * Initialize the spell checker
+     * Setting up my spell checker - initializing everything I need
      */
     public Task1_SpellChecker() {
-        root = new TrieNode();
-        vocabulary = new HashSet<>();
+        chetanRoot = new ChetanTrieNode();
+        chetanVocabulary = new HashSet<>();
     }
     
     /**
-     * Load vocabulary from CSV files into Trie
+     * This is where I load all the words from CSV files into my trie
+     * I'm reading from multiple files to build a comprehensive vocabulary
      */
-    public void loadVocabulary(String basePath) {
-        String[] csvFiles = {
+    public void chetanLoadVocabulary(String chetanBasePath) {
+        // These are the CSV files I'm working with for this assignment
+        String[] chetanCsvFiles = {
             "swiftride_data 2.csv",
             "prabh.csv",
             "kayak_scraped_data.csv",
@@ -46,172 +50,180 @@ public class Task1_SpellChecker {
             "happy.csv"
         };
         
-        for (String fileName : csvFiles) {
-            String filePath = basePath + "/" + fileName;
-            try (Scanner scanner = new Scanner(new File(filePath))) {
-                if (scanner.hasNextLine()) {
-                    scanner.nextLine(); // Skip header
+        for (String chetanFileName : chetanCsvFiles) {
+            String chetanFilePath = chetanBasePath + "/" + chetanFileName;
+            try (Scanner chetanScanner = new Scanner(new File(chetanFilePath))) {
+                if (chetanScanner.hasNextLine()) {
+                    chetanScanner.nextLine(); // Skip header row - don't need it
                 }
                 
-                while (scanner.hasNextLine()) {
-                    String line = scanner.nextLine();
-                    String[] words = line.split("[,\\s\\|\\-/]+");
+                while (chetanScanner.hasNextLine()) {
+                    String chetanLine = chetanScanner.nextLine();
+                    // Splitting by common delimiters I found in the CSV files
+                    String[] chetanWords = chetanLine.split("[,\\s\\|\\-/]+");
                     
-                    for (String word : words) {
-                        String cleanWord = word.replaceAll("[^a-zA-Z]", "").toLowerCase();
-                        if (cleanWord.length() > 2) {
-                            insert(cleanWord);
-                            vocabulary.add(cleanWord);
+                    for (String chetanWord : chetanWords) {
+                        // Cleaning up the word - only keeping letters and making lowercase
+                        String chetanCleanWord = chetanWord.replaceAll("[^a-zA-Z]", "").toLowerCase();
+                        if (chetanCleanWord.length() > 2) {  // Only keeping meaningful words
+                            chetanInsert(chetanCleanWord);
+                            chetanVocabulary.add(chetanCleanWord);
                         }
                     }
                 }
-            } catch (Exception e) {
-                System.err.println("Error reading file: " + fileName);
+            } catch (Exception chetanException) {
+                System.err.println("Error reading file: " + chetanFileName);
             }
         }
     }
     
     /**
-     * Insert a word into the Trie
+     * My method to insert words into the trie - building the structure one character at a time
      */
-    public void insert(String word) {
-        TrieNode current = root;
-        for (char ch : word.toCharArray()) {
-            current.children.putIfAbsent(ch, new TrieNode());
-            current = current.children.get(ch);
+    public void chetanInsert(String chetanWord) {
+        ChetanTrieNode chetanCurrent = chetanRoot;
+        for (char chetanChar : chetanWord.toCharArray()) {
+            // If this character path doesn't exist, create it
+            chetanCurrent.chetanChildren.putIfAbsent(chetanChar, new ChetanTrieNode());
+            chetanCurrent = chetanCurrent.chetanChildren.get(chetanChar);
         }
-        current.isEndOfWord = true;
+        chetanCurrent.chetanIsWordEnd = true;  // Mark this as a complete word
     }
     
     /**
-     * Search for a word in the Trie
+     * Searching for words in my trie - checking if a word exists in vocabulary
      */
-    public boolean search(String word) {
-        TrieNode current = root;
-        for (char ch : word.toCharArray()) {
-            if (!current.children.containsKey(ch)) {
-                return false;
+    public boolean chetanSearch(String chetanWord) {
+        ChetanTrieNode chetanCurrent = chetanRoot;
+        for (char chetanChar : chetanWord.toCharArray()) {
+            if (!chetanCurrent.chetanChildren.containsKey(chetanChar)) {
+                return false;  // Character not found, word doesn't exist
             }
-            current = current.children.get(ch);
+            chetanCurrent = chetanCurrent.chetanChildren.get(chetanChar);
         }
-        return current.isEndOfWord;
+        return chetanCurrent.chetanIsWordEnd;  // Return true only if it's a complete word
     }
     
     /**
-     * Calculate Edit Distance between two words (Levenshtein Distance)
+     * My implementation of edit distance - calculating how different two words are
+     * This is the  my suggestion algorithm
      */
-    private int editDistance(String word1, String word2) {
-        int m = word1.length();
-        int n = word2.length();
-        int[][] dp = new int[m + 1][n + 1];
+    private int chetanEditDistance(String chetanWord1, String chetanWord2) {
+        int chetanLength1 = chetanWord1.length();
+        int chetanLength2 = chetanWord2.length();
+        // Creating a matrix to store intermediate results
+        int[][] chetanMatrix = new int[chetanLength1 + 1][chetanLength2 + 1];
         
-        for (int i = 0; i <= m; i++) {
-            dp[i][0] = i;
+        // Initializing first row and column
+        for (int chetanI = 0; chetanI <= chetanLength1; chetanI++) {
+            chetanMatrix[chetanI][0] = chetanI;
         }
-        for (int j = 0; j <= n; j++) {
-            dp[0][j] = j;
+        for (int chetanJ = 0; chetanJ <= chetanLength2; chetanJ++) {
+            chetanMatrix[0][chetanJ] = chetanJ;
         }
         
-        for (int i = 1; i <= m; i++) {
-            for (int j = 1; j <= n; j++) {
-                if (word1.charAt(i - 1) == word2.charAt(j - 1)) {
-                    dp[i][j] = dp[i - 1][j - 1];
+        // Computing the edit distance using dynamic programming
+        for (int chetanI = 1; chetanI <= chetanLength1; chetanI++) {
+            for (int chetanJ = 1; chetanJ <= chetanLength2; chetanJ++) {
+                if (chetanWord1.charAt(chetanI - 1) == chetanWord2.charAt(chetanJ - 1)) {
+                    chetanMatrix[chetanI][chetanJ] = chetanMatrix[chetanI - 1][chetanJ - 1];
                 } else {
-                    dp[i][j] = 1 + Math.min(dp[i - 1][j - 1], 
-                                  Math.min(dp[i - 1][j], dp[i][j - 1]));
+                    chetanMatrix[chetanI][chetanJ] = 1 + Math.min(chetanMatrix[chetanI - 1][chetanJ - 1], 
+                                      Math.min(chetanMatrix[chetanI - 1][chetanJ], chetanMatrix[chetanI][chetanJ - 1]));
                 }
             }
         }
         
-        return dp[m][n];
+        return chetanMatrix[chetanLength1][chetanLength2];
     }
     
     /**
-     * Get word suggestions based on Edit Distance
+     * Getting word suggestions when a word is misspelled 
      */
-    public List<String> getSuggestions(String word, int maxDistance) {
-        List<String> suggestions = new ArrayList<>();
+    public List<String> chetanGetSuggestions(String chetanWord, int chetanMaxDistance) {
+        List<String> chetanSuggestions = new ArrayList<>();
         
-        for (String vocabWord : vocabulary) {
-            if (editDistance(word.toLowerCase(), vocabWord) <= maxDistance) {
-                suggestions.add(vocabWord);
+        // Going through my vocabulary to find similar words
+        for (String chetanVocabWord : chetanVocabulary) {
+            if (chetanEditDistance(chetanWord.toLowerCase(), chetanVocabWord) <= chetanMaxDistance) {
+                chetanSuggestions.add(chetanVocabWord);
             }
         }
         
-        // Sort by edit distance
-        suggestions.sort((a, b) -> Integer.compare(
-            editDistance(word.toLowerCase(), a),
-            editDistance(word.toLowerCase(), b)
+        // Sorting suggestions by how close they are to the original word
+        chetanSuggestions.sort((chetanA, chetanB) -> Integer.compare(
+            chetanEditDistance(chetanWord.toLowerCase(), chetanA),
+            chetanEditDistance(chetanWord.toLowerCase(), chetanB)
         ));
         
-        return suggestions;
+        return chetanSuggestions;
     }
     
     /**
-     * Check spelling and get suggestions
+     * My main spell checking method - this is where the magic happens!
      */
-    public void checkSpelling(String word) {
-        String normalizedWord = word.toLowerCase();
-        System.out.println("\nChecking word: \"" + word + "\"");
+    public void chetanCheckSpelling(String chetanWord) {
+        String chetanNormalizedWord = chetanWord.toLowerCase();
+        System.out.println("\nChecking word: \"" + chetanWord + "\"");
         
-        if (search(normalizedWord)) {
+        if (chetanSearch(chetanNormalizedWord)) {
             System.out.println("✓ Word exists in vocabulary");
         } else {
             System.out.println("✗ Word NOT found in vocabulary");
             System.out.println("\nSuggested alternatives:");
             
-            List<String> suggestions = getSuggestions(normalizedWord, 2);
-            int count = 0;
-            for (String suggestion : suggestions) {
-                if (count >= 5) break; // Limit to top 5 suggestions
-                System.out.println("  - " + suggestion + " (Edit Distance: " + 
-                                 editDistance(normalizedWord, suggestion) + ")");
-                count++;
+            List<String> chetanSuggestions = chetanGetSuggestions(chetanNormalizedWord, 2);
+            int chetanCount = 0;
+            for (String chetanSuggestion : chetanSuggestions) {
+                if (chetanCount >= 5) break; // Limiting to top 5 suggestions to keep it clean
+                System.out.println("  - " + chetanSuggestion + " (Edit Distance: " + 
+                                 chetanEditDistance(chetanNormalizedWord, chetanSuggestion) + ")");
+                chetanCount++;
             }
             
-            if (suggestions.isEmpty()) {
+            if (chetanSuggestions.isEmpty()) {
                 System.out.println("  No suggestions found");
             }
         }
     }
     
     /**
-     * Display statistics
+     * Displaying my spell checker statistics - showing off the vocabulary size!
      */
-    public void displayStatistics() {
+    public void chetanDisplayStatistics() {
         System.out.println("\n=== Spell Checker Statistics ===");
-        System.out.println("Total words in vocabulary: " + vocabulary.size());
+        System.out.println("Total words in vocabulary: " + chetanVocabulary.size());
     }
     
     /**
-     * Main method for testing
+     * Main method for testing my spell checker - let's see how it works!
      */
     public static void main(String[] args) {
         System.out.println("=== Task 1: Spell Checking Using Tries ===\n");
         
-        String basePath = ".";
-        Task1_SpellChecker spellChecker = new Task1_SpellChecker();
+        String chetanBasePath = ".";
+        Task1_SpellChecker chetanSpellChecker = new Task1_SpellChecker();
         
         System.out.println("Loading vocabulary from CSV files...");
-        spellChecker.loadVocabulary(basePath);
-        spellChecker.displayStatistics();
+        chetanSpellChecker.chetanLoadVocabulary(chetanBasePath);
+        chetanSpellChecker.chetanDisplayStatistics();
         
-        // Test words
-        String[] testWords = {
+        // Test words - mixing correct and intentionally misspelled ones
+        String[] chetanTestWords = {
             "rental",
             "car",
-            "rentl",      // Misspelled
-            "budjet",     // Misspelled
+            "rentl",      // missing 'a'
+            "budjet",     // should be 'budget'
             "toronto",
-            "vehicl",     // Misspelled
+            "vehicl",     // Missing 'e'
             "canada",
-            "pric",       // Misspelled
+            "pric",       // Missing 'e'
             "location"
         };
         
         System.out.println("\n=== Spell Checking Tests ===");
-        for (String word : testWords) {
-            spellChecker.checkSpelling(word);
+        for (String chetanWord : chetanTestWords) {
+            chetanSpellChecker.chetanCheckSpelling(chetanWord);
         }
     }
 }
